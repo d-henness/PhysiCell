@@ -290,6 +290,13 @@ void setup_tissue( void )
 
   Cell_Definition* pCD = cell_definitions_by_index[0];
   std::cout << "Placing cells of type " << pCD->name << " ... " << std::endl;
+
+  static double onc_mean = parameters.doubles("oncoprotein_mean");
+  static double onc_std = parameters.doubles("oncoprotein_std");
+  static double onc_max = parameters.doubles("oncoprotein_max");
+
+  static int cycle_start_index = live.find_phase_index( PhysiCell_constants::live );
+  static int cycle_end_index = live.find_phase_index( PhysiCell_constants::live );
   for( int n = 0 ; n < parameters.ints("number_of_cells") ; n++ )
   {
     std::vector<double> position = {0,0,0};
@@ -299,6 +306,18 @@ void setup_tissue( void )
 
     pC = create_cell( *pCD );
     pC->assign_position( position );
+
+    // add in tumor hetero
+    pC->custom_data["oncoprotein"] = NormalRandom(onc_mean, onc_std);
+    if(pC->custom_data["oncoprotein"] < 0.0){
+      pC->custom_data["oncoprotein"] = 0.0;
+    }
+    else if(pC->custom_data["oncoprotein"] > onc_max){
+      pC->custom_data["oncoprotein"] = onc_max;
+    }
+    pC->phenotype.cycle.data.transition_rate(cycle_start_index, cycle_end_index) *= pC->custom_data["oncoprotein"];
+
+
 //    pC->phenotype.secretion.saturation_densities[0] = pC->custom_data["base_compound_x_secretion_target"] * UniformRandom();
 //    pC->custom_data["current_compound_x_secretion_target"] = pC->phenotype.secretion.saturation_densities[0];
   }
@@ -341,15 +360,24 @@ std::vector<std::string> my_coloring_function( Cell* pCell ){
 
 	// live cells are green, but shaded by oncoprotein value
 	if( pCell->phenotype.death.dead == false )
-	{
-		int compound_x_saturation = (int) (pCell->phenotype.secretion.saturation_densities[0] / pCell->custom_data["base_compound_x_secretion_target"] * 255.0 );
-		char szTempString [128];
-		sprintf( szTempString , "rgb(%u,%u,%u)", compound_x_saturation, compound_x_saturation, 255-compound_x_saturation );
-		output[0].assign( szTempString );
-		output[1].assign( szTempString );
+  {
+    int oncoprotein = (int) round( 0.5 * pCell->custom_data[oncoprotein_i] * 255.0 ); 
+    char szTempString [128];
+    sprintf( szTempString , "rgb(%u,%u,%u)", oncoprotein, oncoprotein, 255-oncoprotein );
+    output[0].assign( szTempString );
+    output[1].assign( szTempString );
 
-		sprintf( szTempString , "rgb(%u,%u,%u)", (int)round(output[0][0]/2.0) , (int)round(output[0][1]/2.0) , (int)round(output[0][2]/2.0) );
-		output[2].assign( szTempString );
+    sprintf( szTempString , "rgb(%u,%u,%u)", (int)round(output[0][0]/2.0) , (int)round(output[0][1]/2.0) , (int)round(output[0][2]/2.0) );
+    output[2].assign( szTempString );
+
+//    int compound_x_saturation = (int) (pCell->phenotype.secretion.saturation_densities[0] / pCell->custom_data["base_compound_x_secretion_target"] * 255.0 );
+//		char szTempString [128];
+//		sprintf( szTempString , "rgb(%u,%u,%u)", compound_x_saturation, compound_x_saturation, 255-compound_x_saturation );
+//		output[0].assign( szTempString );
+//		output[1].assign( szTempString );
+//
+//		sprintf( szTempString , "rgb(%u,%u,%u)", (int)round(output[0][0]/2.0) , (int)round(output[0][1]/2.0) , (int)round(output[0][2]/2.0) );
+//		output[2].assign( szTempString );
 
 		return output;
 	}
