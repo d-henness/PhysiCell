@@ -214,6 +214,7 @@ int main( int argc, char* argv[] )
           else if(pC_info->type_name == "cancer cell" && !pC_info->phenotype.death.dead){
             cancer_cell_count++;
           }
+          std::cout << "onco:\t" << pC_info->custom_data["oncoprotein"] << std::endl;
         }
         std::cout << "Cancer cells:\t" << cancer_cell_count << std::endl;
         std::cout << "Immune cells:\t" << immune_cell_count << std::endl << std::endl;

@@ -87,7 +87,7 @@
 	</domain>
 
 	<overall>
-		<max_time units="min">14000</max_time> <!-- 5 days * 24 h * 60 min -->
+		<max_time units="min">60</max_time> <!-- 5 days * 24 h * 60 min -->
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 
@@ -248,6 +248,8 @@
 
 				<max_attachment_distance units="micron">18.0</max_attachment_distance>
 				<min_attachment_distance units="micron">14.0</min_attachment_distance>
+
+				<oncoprotein units="dimensionless">1.0</oncoprotein>
 			</custom_data>
 		</cell_definition>
 
@@ -354,6 +356,12 @@
 
       <!-- Time between phenotype updates make sure this is consistent with dt_phenotype -->
     <phenotype_update_time type = "double" units = "min">6</phenotype_update_time>
+
+    <!-- oncoprotein information -->
+		<oncoprotein_mean type="double" units="dimensionless">1.0</oncoprotein_mean>
+		<oncoprotein_std type="double" units="dimensionless">0.25</oncoprotein_std>
+		<oncoprotein_max type="double" units="dimensionless">2.0</oncoprotein_max>
+
 	</user_parameters>
 
 </PhysiCell_settings>
