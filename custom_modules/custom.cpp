@@ -557,18 +557,30 @@ bool immune_cell_attempt_apoptosis( Cell* pAttacker, Cell* pTarget, double dt )
 	if( pTarget->custom_data[oncoprotein_i] < oncoprotein_threshold )
 	{ return false; }
 
-	// new
-	double scale = pTarget->custom_data[oncoprotein_i];
-	scale -= oncoprotein_threshold;
-	scale /= oncoprotein_difference;
-	if( scale > 1.0 )
-	{ scale = 1.0; }
 
-  // added bc all cells are the same
-  scale = 1.0;
-  // remove when done
+//  // added bc all cells are the same
+//  scale = 1.0;
+//  // remove when done
 
-	if( UniformRandom() < pAttacker->custom_data[kill_rate_index] * scale * dt )
+  // oncoprotein will be used to scale kill rate depending on positive/negative/no correlation
+  double scale = 1.0;
+  static double onc_max = parameters.doubles("oncoprotein_max");
+  if (pTarget->custom_data["oncoprotein_correlation"] > 0.0){
+    scale = pTarget->custom_data[oncoprotein_i] / onc_max;
+  }
+  else if (pTarget->custom_data["oncoprotein_correlation"] > 0.0){
+    scale = 1.0 - (pTarget->custom_data[oncoprotein_i] / onc_max);
+  }
+
+  // just incase of dp errors
+  if (scale > 1.0){
+    scale = 1.0;
+  }
+  else if (scale < 0.0){
+    scale = 0.0;
+  }
+
+	if( UniformRandom() < pAttacker->custom_data[kill_rate_index] * scale * dt ) // seems like as simulation time -> inf probability of killing cells -> 1 regardless of all other factors? might not be working as intended?
 	{
 //		std::cout << "\t\t kill!" << " " << pTarget->custom_data[oncoprotein_i] << std::endl;
 //		update secretion_rates to simulate release of chemicals that attract other immune cells
