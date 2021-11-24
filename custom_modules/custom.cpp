@@ -397,6 +397,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell ){
 	return output;
 }
 
+// none of this is used
 void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt ){
 	if(phenotype.death.dead) return;
 
@@ -568,7 +569,7 @@ bool immune_cell_attempt_apoptosis( Cell* pAttacker, Cell* pTarget, double dt )
   if (pTarget->custom_data["oncoprotein_correlation"] > 0.0){
     scale = pTarget->custom_data[oncoprotein_i] / onc_max;
   }
-  else if (pTarget->custom_data["oncoprotein_correlation"] > 0.0){
+  else if (pTarget->custom_data["oncoprotein_correlation"] < 0.0){
     scale = 1.0 - (pTarget->custom_data[oncoprotein_i] / onc_max);
   }
 
