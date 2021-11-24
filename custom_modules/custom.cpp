@@ -84,11 +84,9 @@ void immune_cell_update_phenotype( Cell* pCell, Phenotype& phenotype, double dt 
   if(!pCell->phenotype.death.dead){
     // change reproduce rates
     double delta = (pCell->custom_data["replication_bonus"] / pCell->custom_data["base_cycle_length"]) - (1.0 / pCell->custom_data["base_cycle_length"]);
-    if((phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) - (delta / 10.0)) < (1.0 / pCell->custom_data["base_cycle_length"])){
+    phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) -= delta / 10.0;
+    if((phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) < (1.0 / pCell->custom_data["base_cycle_length"])){
       phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = 1.0 / pCell->custom_data["base_cycle_length"];
-    }
-    else{
-      phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) -= delta / 10.0;
     }
     // change death rates
   //  delta = (pCell->custom_data["max_death_rate"] - pCell->custom_data["base_apop_rate"]) / 10.0;
