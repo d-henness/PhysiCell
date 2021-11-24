@@ -76,11 +76,9 @@ void immune_cell_update_phenotype( Cell* pCell, Phenotype& phenotype, double dt 
 
 
   // change amount of compound_x secreted
-  if (pCell->phenotype.secretion.secretion_rates[0] - 1.0 < 0.0){
-    pCell->phenotype.secretion.secretion_rates[0] = 0;
-  }
-  else{
-    pCell->phenotype.secretion.secretion_rates[0] -= 1.0;
+  pCell->phenotype.secretion.secretion_rates[0] -= 1.0;
+  if (pCell->phenotype.secretion.secretion_rates[0] < 0.0){
+    pCell->phenotype.secretion.secretion_rates[0] = 0.0;
   }
 
   if(!pCell->phenotype.death.dead){
@@ -397,46 +395,46 @@ std::vector<std::string> my_coloring_function( Cell* pCell ){
 	return output;
 }
 
-// none of this is used
-void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt ){
-	if(phenotype.death.dead) return;
-
-	static int start_phase_index;
-	static int end_phase_index;
-	static int apoptosis_index;
-	static int compound_x_index = pCell->get_microenvironment()->find_density_index("compound_x");
-
-  start_phase_index = phenotype.cycle.model().find_phase_index(PhysiCell_constants::live);
-  end_phase_index = phenotype.cycle.model().find_phase_index(PhysiCell_constants::live);
-  apoptosis_index = phenotype.death.find_death_model_index(PhysiCell_constants::apoptosis_death_model);
-
-	double pCompound_x = (pCell->nearest_density_vector())[compound_x_index]; // PhysiCell_constants::oxygen_index];
-	int n = pCell->phenotype.cycle.current_phase_index();
-
-	// this multiplier is for linear interpolation of the compound_x value
-	double multiplier = 1.0;
-	if(pCompound_x > pCell->custom_data["compound_x_thresh"]){
-		multiplier = pCompound_x;
-	}
-	// now, update the appropriate cycle transition rate
-
-	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier / pCell->custom_data["base_cycle_length"];
-
-  // update cell based on pressure
-  double pressure = pCell->state.simple_pressure;
-  pCell->custom_data["pressure"] = pressure;
-	// Update necrosis rate
-	multiplier = 1.0;
-	if(pressure > pCell->custom_data["pressure_thresh"])
-	{
-		multiplier = std::pow(pressure, 2);
-	}
-
-	// now, update the necrosis rate
-
-	pCell->phenotype.death.rates[apoptosis_index] = multiplier * pCell->custom_data["base_apop_rate"];
-  return;
-}
+// this function is not used
+//void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt ){
+//	if(phenotype.death.dead) return;
+//
+//	static int start_phase_index;
+//	static int end_phase_index;
+//	static int apoptosis_index;
+//	static int compound_x_index = pCell->get_microenvironment()->find_density_index("compound_x");
+//
+//  start_phase_index = phenotype.cycle.model().find_phase_index(PhysiCell_constants::live);
+//  end_phase_index = phenotype.cycle.model().find_phase_index(PhysiCell_constants::live);
+//  apoptosis_index = phenotype.death.find_death_model_index(PhysiCell_constants::apoptosis_death_model);
+//
+//	double pCompound_x = (pCell->nearest_density_vector())[compound_x_index]; // PhysiCell_constants::oxygen_index];
+//	int n = pCell->phenotype.cycle.current_phase_index();
+//
+//	// this multiplier is for linear interpolation of the compound_x value
+//	double multiplier = 1.0;
+//	if(pCompound_x > pCell->custom_data["compound_x_thresh"]){
+//		multiplier = pCompound_x;
+//	}
+//	// now, update the appropriate cycle transition rate
+//
+//	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier / pCell->custom_data["base_cycle_length"];
+//
+//  // update cell based on pressure
+//  double pressure = pCell->state.simple_pressure;
+//  pCell->custom_data["pressure"] = pressure;
+//	// Update necrosis rate
+//	multiplier = 1.0;
+//	if(pressure > pCell->custom_data["pressure_thresh"])
+//	{
+//		multiplier = std::pow(pressure, 2);
+//	}
+//
+//	// now, update the necrosis rate
+//
+//	pCell->phenotype.death.rates[apoptosis_index] = multiplier * pCell->custom_data["base_apop_rate"];
+//  return;
+//}
 
 void custom_function( Cell* pCell, Phenotype& phenotype , double dt ){
   return;
@@ -567,10 +565,10 @@ bool immune_cell_attempt_apoptosis( Cell* pAttacker, Cell* pTarget, double dt )
   double scale = 1.0;
   static double onc_max = parameters.doubles("oncoprotein_max");
   if (pTarget->custom_data["oncoprotein_correlation"] > 0.0){
-    scale = pTarget->custom_data[oncoprotein_i] / onc_max;
+    scale = 1.0 - pTarget->custom_data[oncoprotein_i] / onc_max;
   }
   else if (pTarget->custom_data["oncoprotein_correlation"] < 0.0){
-    scale = 1.0 - (pTarget->custom_data[oncoprotein_i] / onc_max);
+    scale = (pTarget->custom_data[oncoprotein_i] / onc_max);
   }
 
   // just incase of dp errors
