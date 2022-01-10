@@ -138,9 +138,11 @@ int main( int argc, char* argv[] )
 
 	// save a simulation snapshot
 
+  std::cout << "here2" << std::endl;
 	char filename[1024];
 	sprintf( filename , "%s/initial" , PhysiCell_settings.folder.c_str() );
-	save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time );
+	//save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time );
+  std::cout << "here3" << std::endl;
 
 	// save a quick SVG cross section through z = 0, after setting its
 	// length bar to 200 microns
@@ -177,6 +179,7 @@ int main( int argc, char* argv[] )
 
 	double immune_activation_time = 
 		parameters.doubles("immune_activation_time"); // 60 * 24 * 14; // activate immune response at 14 days 
+  std::cout << "here4" << std::endl;
 	try
 	{
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )
