@@ -99,14 +99,15 @@ void immune_cell_update_phenotype( Cell* pCell, Phenotype& phenotype, double dt 
     double pCompound_x = (pCell->nearest_density_vector())[compound_x_index];
     if (pCompound_x < pCell->custom_data["compound_x_apop_thresh"]){
       pCell->phenotype.death.rates[apoptosis_index] = pCell->custom_data["base_apop_rate"] / std::exp(-pCell->custom_data["apop_rate_constant"] * pCell->custom_data["min_since_below_thresh"]);
+      pCell->custom_data["min_since_below_thresh"] += parameters.doubles("phenotype_update_time");
     }
     else{
       pCell->phenotype.death.rates[apoptosis_index] = pCell->custom_data["base_apop_rate"];
+      pCell->custom_data["min_since_below_thresh"] += 0.0;
     }
 
   }
 
-  pCell->custom_data["min_since_below_thresh"] += parameters.doubles("phenotype_update_time");
 }
 
 void create_immune_cell_type( void )
