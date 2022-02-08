@@ -73,6 +73,7 @@ void immune_cell_update_phenotype( Cell* pCell, Phenotype& phenotype, double dt 
   static int start_phase_index = phenotype.cycle.model().find_phase_index(PhysiCell_constants::live);
   static int end_phase_index = phenotype.cycle.model().find_phase_index(PhysiCell_constants::live);
   static int apoptosis_index = phenotype.death.find_death_model_index(PhysiCell_constants::apoptosis_death_model);
+  static int compound_x_index = microenvironment.find_density_index( "compound_x" ); // 1
 
 
   // change amount of compound_x secreted
@@ -94,118 +95,125 @@ void immune_cell_update_phenotype( Cell* pCell, Phenotype& phenotype, double dt 
   //    pCell->phenotype.death.rates[apoptosis_index] += delta;
   //  }
 
-    // use a model based on a half life curve to update the rate of apoptosis
-    pCell->phenotype.death.rates[apoptosis_index] = pCell->custom_data["base_apop_rate"] / std::exp(-pCell->custom_data["apop_rate_constant"] * pCell->custom_data["min_since_last_kill_attempt"]);
+    // use a model based on the amount of compound_x to increase death rate
+    double pCompound_x = (pCell->nearest_density_vector())[compound_x_index];
+    if (pCompound_x < pCell->custom_data["compound_x_apop_thresh"]){
+      pCell->phenotype.death.rates[apoptosis_index] = pCell->custom_data["base_apop_rate"] / std::exp(-pCell->custom_data["apop_rate_constant"] * pCell->custom_data["min_since_below_thresh"]);
+    }
+    else{
+      pCell->phenotype.death.rates[apoptosis_index] = pCell->custom_data["base_apop_rate"];
+    }
+
   }
 
-  pCell->custom_data["min_since_last_kill_attempt"] += parameters.doubles("phenotype_update_time");
+  pCell->custom_data["min_since_below_thresh"] += parameters.doubles("phenotype_update_time");
 }
 
 void create_immune_cell_type( void )
 {
-	pImmuneCell = find_cell_definition( "immune cell" );
+  pImmuneCell = find_cell_definition( "immune cell" );
 
-	static int immuno_ID = microenvironment.find_density_index( "compound_x" );
+  static int immuno_ID = microenvironment.find_density_index( "compound_x" );
 
-	// reduce o2 uptake
+  // reduce o2 uptake
 
-	pImmuneCell->phenotype.mechanics.cell_cell_adhesion_strength *= parameters.doubles("immune_relative_adhesion");
-	pImmuneCell->phenotype.mechanics.cell_cell_repulsion_strength *= parameters.doubles("immune_relative_repulsion");
+  pImmuneCell->phenotype.mechanics.cell_cell_adhesion_strength *= parameters.doubles("immune_relative_adhesion");
+  pImmuneCell->phenotype.mechanics.cell_cell_repulsion_strength *= parameters.doubles("immune_relative_repulsion");
 
-	// figure out mechanics parameters
+  // figure out mechanics parameters
 
-	pImmuneCell->phenotype.mechanics.relative_maximum_attachment_distance = pImmuneCell->custom_data["max_attachment_distance"] / pImmuneCell->phenotype.geometry.radius;
+  pImmuneCell->phenotype.mechanics.relative_maximum_attachment_distance = pImmuneCell->custom_data["max_attachment_distance"] / pImmuneCell->phenotype.geometry.radius;
 
-	pImmuneCell->phenotype.mechanics.attachment_elastic_constant = pImmuneCell->custom_data["elastic_coefficient"];
+  pImmuneCell->phenotype.mechanics.attachment_elastic_constant = pImmuneCell->custom_data["elastic_coefficient"];
 
-	pImmuneCell->phenotype.mechanics.relative_detachment_distance = pImmuneCell->custom_data["max_attachment_distance" ] / pImmuneCell->phenotype.geometry.radius;
+  pImmuneCell->phenotype.mechanics.relative_detachment_distance = pImmuneCell->custom_data["max_attachment_distance" ] / pImmuneCell->phenotype.geometry.radius;
 
-	// set functions
+  // set functions
 
-	pImmuneCell->functions.update_phenotype = immune_cell_update_phenotype;
-	pImmuneCell->functions.custom_cell_rule = immune_cell_rule;
-	pImmuneCell->functions.update_migration_bias = immune_cell_motility;
-	pImmuneCell->functions.contact_function = adhesion_contact_function;
+  pImmuneCell->functions.update_phenotype = immune_cell_update_phenotype;
+  pImmuneCell->functions.custom_cell_rule = immune_cell_rule;
+  pImmuneCell->functions.update_migration_bias = immune_cell_motility;
+  pImmuneCell->functions.contact_function = adhesion_contact_function;
 
-	// set custom data values
+  // set custom data values
 
-	return;
+  return;
 }
 
 void create_cell_types( void )
 {
-	// set the random seed
-	SeedRandom( parameters.ints("random_seed") );
+  // set the random seed
+  SeedRandom( parameters.ints("random_seed") );
 
-	/*
-	   Put any modifications to default cell definition here if you
-	   want to have "inherited" by other cell types.
+  /*
+     Put any modifications to default cell definition here if you
+     want to have "inherited" by other cell types.
 
-	   This is a good place to set default functions.
-	*/
+     This is a good place to set default functions.
+  */
 
-	initialize_default_cell_definition();
-	static int immuno_ID = microenvironment.find_density_index( "compound_x" ); // 1
+  initialize_default_cell_definition();
+  static int immuno_ID = microenvironment.find_density_index( "compound_x" ); // 1
 
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
+  cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 
-	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
+  cell_defaults.functions.volume_update_function = standard_volume_update_function;
+  cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
-	cell_defaults.functions.update_migration_bias = NULL;
-	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based;
-	cell_defaults.functions.custom_cell_rule = NULL;
-	cell_defaults.functions.contact_function = NULL;
+  cell_defaults.functions.update_migration_bias = NULL;
+  cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based;
+  cell_defaults.functions.custom_cell_rule = NULL;
+  cell_defaults.functions.contact_function = NULL;
 
-	cell_defaults.functions.add_cell_basement_membrane_interactions = NULL;
-	cell_defaults.functions.calculate_distance_to_membrane = NULL;
+  cell_defaults.functions.add_cell_basement_membrane_interactions = NULL;
+  cell_defaults.functions.calculate_distance_to_membrane = NULL;
 
-	/*
-	   This parses the cell definitions in the XML config file.
-	*/
+  /*
+     This parses the cell definitions in the XML config file.
+  */
 
-	initialize_cell_definitions_from_pugixml();
+  initialize_cell_definitions_from_pugixml();
 
-	/*
-	   Put any modifications to individual cell definitions here.
+  /*
+     Put any modifications to individual cell definitions here.
 
-	   This is a good place to set custom functions.
-	*/
-	cell_defaults.phenotype.mechanics.relative_maximum_attachment_distance =
-		cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius;
+     This is a good place to set custom functions.
+  */
+  cell_defaults.phenotype.mechanics.relative_maximum_attachment_distance =
+    cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius;
 
-	cell_defaults.phenotype.mechanics.relative_detachment_distance
-		= cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius ;
+  cell_defaults.phenotype.mechanics.relative_detachment_distance
+    = cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius ;
 
-	cell_defaults.phenotype.mechanics.attachment_elastic_constant
-		= cell_defaults.custom_data[ "elastic_coefficient" ];
+  cell_defaults.phenotype.mechanics.attachment_elastic_constant
+    = cell_defaults.custom_data[ "elastic_coefficient" ];
 
-	//cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_and_immune_stimulation;
-	cell_defaults.functions.custom_cell_rule = NULL;
-	cell_defaults.functions.contact_function = adhesion_contact_function;
-	cell_defaults.functions.update_migration_bias = NULL;
+  //cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_and_immune_stimulation;
+  cell_defaults.functions.custom_cell_rule = NULL;
+  cell_defaults.functions.contact_function = adhesion_contact_function;
+  cell_defaults.functions.update_migration_bias = NULL;
 
-	cell_defaults.functions.update_phenotype = NULL;//phenotype_function;
-	cell_defaults.functions.custom_cell_rule = custom_function;
-	cell_defaults.functions.contact_function = contact_function;
+  cell_defaults.functions.update_phenotype = NULL;//phenotype_function;
+  cell_defaults.functions.custom_cell_rule = custom_function;
+  cell_defaults.functions.contact_function = contact_function;
 
-	/*
-	   This builds the map of cell definitions and summarizes the setup.
-	*/
+  /*
+     This builds the map of cell definitions and summarizes the setup.
+  */
 
-	create_immune_cell_type();
+  create_immune_cell_type();
 
-	build_cell_definitions_maps();
-	display_cell_definitions( std::cout );
+  build_cell_definitions_maps();
+  display_cell_definitions( std::cout );
 
-	return;
+  return;
 }
 
 void setup_microenvironment( void )
 {
-	// set domain parameters
+  // set domain parameters
 
-	// put any custom code to set non-homogeneous initial conditions or
+    // put any custom code to set non-homogeneous initial conditions or
 	// extra Dirichlet nodes here.
 
 	// initialize BioFVM
