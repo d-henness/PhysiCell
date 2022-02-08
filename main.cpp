@@ -216,7 +216,7 @@ int main( int argc, char* argv[] )
           }
           else if(pC_info->type_name == "cancer cell" && !pC_info->phenotype.death.dead){
             cancer_cell_count++;
-            std::cout << "Oncoprotein:\t" << pC_info->custom_data["oncoprotein"] << std::endl;
+//            std::cout << "Oncoprotein:\t" << pC_info->custom_data["oncoprotein"] << std::endl;
           }
         }
         std::cout << "Cancer cells:\t" << cancer_cell_count << std::endl;
@@ -241,17 +241,17 @@ int main( int argc, char* argv[] )
 			}
 
 			// save SVG plot if it's time
-			if( fabs( PhysiCell_globals.current_time - PhysiCell_globals.next_SVG_save_time  ) < 0.01 * diffusion_dt )
-			{
-				if( PhysiCell_settings.enable_SVG_saves == true )
-				{
-					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index );
-					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
-
-					PhysiCell_globals.SVG_output_index++;
-					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
-				}
-			}
+//			if( fabs( PhysiCell_globals.current_time - PhysiCell_globals.next_SVG_save_time  ) < 0.01 * diffusion_dt )
+//			{
+//				if( PhysiCell_settings.enable_SVG_saves == true )
+//				{
+//					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index );
+//					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+//
+//					PhysiCell_globals.SVG_output_index++;
+//					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
+//				}
+//			}
 
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
