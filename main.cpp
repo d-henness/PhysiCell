@@ -213,9 +213,6 @@ int main( int argc, char* argv[] )
           pC_info = (*all_cells)[i];
           if(pC_info->type_name == "immune cell" && !pC_info->phenotype.death.dead){
             immune_cell_count++;
-            static int compound_x_index = microenvironment.find_density_index( "compound_x" ); // 1
-            double pCompound_x = (pC_info->nearest_density_vector())[compound_x_index];
-            std::cout << pCompound_x << std::endl;
           }
           else if(pC_info->type_name == "cancer cell" && !pC_info->phenotype.death.dead){
             cancer_cell_count++;
