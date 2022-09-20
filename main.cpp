@@ -221,6 +221,9 @@ int main( int argc, char* argv[] )
         }
         std::cout << "Cancer cells:\t" << cancer_cell_count << std::endl;
         std::cout << "Immune cells:\t" << immune_cell_count << std::endl << std::endl;
+        if (cancer_cell_count - immune_cell_count > 100000){
+          std::cout << "Difference in cancer cell and immune cell populations reached threshold, quiting." << std::endl;
+        }
 
 
         // comment these out to save disk space if needed
@@ -266,9 +269,6 @@ int main( int argc, char* argv[] )
 			PhysiCell_globals.current_time += diffusion_dt;
 
       // quit if number of cancer cells is too large
-      if (cancer_cell_count - immune_cell_count > 100000){
-        std::cout << "Difference in cancer cell and immune cell populations reached threshold, quiting." << std::endl;
-      }
 		}
 
 		if( PhysiCell_settings.enable_legacy_saves == true )
