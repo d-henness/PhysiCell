@@ -87,7 +87,7 @@
 	</domain>
 
 	<overall>
-		<max_time units="min">60</max_time> <!-- 5 days * 24 h * 60 min -->
+		<max_time units="min">14000</max_time> <!-- 5 days * 24 h * 60 min -->
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 
@@ -109,7 +109,7 @@
 		</full_data>
 
 		<SVG>
-			<interval units="min">6</interval>
+			<interval units="min">12</interval>
 			<enable>true</enable>
 		</SVG>
 
@@ -250,6 +250,8 @@
 				<min_attachment_distance units="micron">14.0</min_attachment_distance>
 
 				<oncoprotein units="dimensionless">1.0</oncoprotein>
+				<oncoprotein_correlation units="dimensionless">0.0</oncoprotein_correlation>
+
 			</custom_data>
 		</cell_definition>
 
@@ -310,7 +312,7 @@
 				<max_death_rate units="1/min">2.658335e-04</max_death_rate>
 				<base_apop_rate units="1/min">5.31667e-05</base_apop_rate>
 				<oncoprotein units="dimensionless">0</oncoprotein>
-				<replication_bonus units="dimensionless">1.10</replication_bonus>
+				<replication_bonus units="dimensionless">1.00</replication_bonus>
         <base_cycle_length units="min">1400.0</base_cycle_length>
 
         <!-- for the half life model of increasing the death rate -->
@@ -338,7 +340,7 @@
 
     <!-- taken from sample_projects/cancer_immune/config/PhysiCell_settings.xml -->
 		<!-- main -->
-    <immune_activation_time type="double" units="min">1440</immune_activation_time>
+    <immune_activation_time type="double" units="min">60</immune_activation_time>
 			<!-- activate in 4 days -->
 		<save_interval_after_therapy_start type="double" units="min">3.0</save_interval_after_therapy_start>
 		<SVG_interval_after_therapy_start type="double" units="min">3.0</SVG_interval_after_therapy_start>
@@ -351,8 +353,9 @@
 		<!-- immune seeding parameters -->
 
 		<number_of_immune_cells type="int" units="dimensionless">100</number_of_immune_cells>
-		<initial_min_immune_distance_from_tumor type="double" units="micron">30</initial_min_immune_distance_from_tumor> <!-- 30 -->
-		<thickness_of_immune_seeding_region type="double" units="micron">75</thickness_of_immune_seeding_region>
+		<initial_min_immune_distance_from_tumor type="double" units="micron">10</initial_min_immune_distance_from_tumor> <!-- 30 -->
+		<thickness_of_immune_seeding_region type="double" units="micron">10</thickness_of_immune_seeding_region>
+		<std_of_immune_seeding_radius type="double" units="micron">10</std_of_immune_seeding_radius>
 
       <!-- Time between phenotype updates make sure this is consistent with dt_phenotype -->
     <phenotype_update_time type = "double" units = "min">6</phenotype_update_time>
