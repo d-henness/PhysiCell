@@ -223,6 +223,7 @@ int main( int argc, char* argv[] )
         std::cout << "Immune cells:\t" << immune_cell_count << std::endl << std::endl;
         if (cancer_cell_count - immune_cell_count > 100000){
           std::cout << "Difference in cancer cell and immune cell populations reached threshold, quiting." << std::endl;
+          return 0;
         }
 
 
