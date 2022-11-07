@@ -216,16 +216,21 @@ int main( int argc, char* argv[] )
           }
           else if(pC_info->type_name == "cancer cell" && !pC_info->phenotype.death.dead){
             cancer_cell_count++;
-            std::cout << "Oncoprotein:\t" << pC_info->custom_data["oncoprotein"] << std::endl;
+//            std::cout << "Oncoprotein:\t" << pC_info->custom_data["oncoprotein"] << std::endl;
           }
         }
         std::cout << "Cancer cells:\t" << cancer_cell_count << std::endl;
         std::cout << "Immune cells:\t" << immune_cell_count << std::endl << std::endl;
-        if (cancer_cell_count - immune_cell_count > 100000){
-          std::cout << "Difference in cancer cell and immune cell populations reached threshold, quiting." << std::endl;
+
+        // new exit conditions
+        if (cancer_cell_count == 0){
+          std::cout << "All cancer eliminated, quiting" << std::endl;
           return 0;
         }
-
+        else if (cancer_cell_count + immune_cell_count > 50000){
+          std::cout << "Populations rising too high. Inspect manually." << std::endl;
+          return 0;
+        }
 
         // comment these out to save disk space if needed
 //				if( PhysiCell_settings.enable_legacy_saves == true )
@@ -268,8 +273,6 @@ int main( int argc, char* argv[] )
 			*/
 
 			PhysiCell_globals.current_time += diffusion_dt;
-
-      // quit if number of cancer cells is too large
 		}
 
 		if( PhysiCell_settings.enable_legacy_saves == true )
