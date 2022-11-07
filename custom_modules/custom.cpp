@@ -239,6 +239,7 @@ void introduce_immune_cells( void )
 	// now square root to get to radius
 	tumor_radius = sqrt( tumor_radius );
 
+	std::cout << "current tumor radius: " << tumor_radius << std::endl;
 	// if this goes wackadoodle, choose 250
 	if( tumor_radius < 250.0 )
 	{ tumor_radius = 250.0; }
@@ -249,11 +250,11 @@ void introduce_immune_cells( void )
 
 	int number_of_immune_cells =
 		parameters.ints("number_of_immune_cells"); // 7500; // 100; // 40;
-	double radius_inner = 0.0; //tumor_radius + parameters.doubles("initial_min_immune_distance_from_tumor");// 30.0; // 75 // 50;
-	double radius_outer = 500.0;// radius_inner + parameters.doubles("thickness_of_immune_seeding_region"); // 75.0; // 100; // 1000 - 50.0;
+	double radius_inner = tumor_radius + parameters.doubles("initial_min_immune_distance_from_tumor");// 30.0; // 75 // 50;
+	double radius_outer = radius_inner + parameters.doubles("thickness_of_immune_seeding_region"); // 75.0; // 100; // 1000 - 50.0;
 
 	double mean_radius = 0.5*(radius_inner + radius_outer);
-	double std_radius = 0.33*( radius_outer-radius_inner)/2.0;
+	double std_radius = parameters.doubles("std_of_immune_seeding_radius");
 
 	for( int i=0 ;i < number_of_immune_cells ; i++ )
 	{
@@ -263,7 +264,8 @@ void introduce_immune_cells( void )
 		double radius = NormalRandom( mean_radius, std_radius );
 
 		Cell* pCell = create_cell( *pImmuneCell );
-		pCell->assign_position( radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), 0.0);
+//		pCell->assign_position( radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), 0.0);
+		pCell->assign_position( radius*cos(theta), radius*sin(theta), 0.0);
 	}
 
 	return;

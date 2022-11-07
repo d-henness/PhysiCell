@@ -222,6 +222,15 @@ int main( int argc, char* argv[] )
         std::cout << "Cancer cells:\t" << cancer_cell_count << std::endl;
         std::cout << "Immune cells:\t" << immune_cell_count << std::endl << std::endl;
 
+        // new exit conditions
+        if (cancer_cell_count == 0){
+          std::cout << "All cancer eliminated, quiting" << std::endl;
+          return 0;
+        }
+        else if (cancer_cell_count + immune_cell_count > 50000){
+          std::cout << "Populations rising too high. Inspect manually." << std::endl;
+          return 0;
+        }
 
         // comment these out to save disk space if needed
 //				if( PhysiCell_settings.enable_legacy_saves == true )
@@ -241,17 +250,17 @@ int main( int argc, char* argv[] )
 			}
 
 			// save SVG plot if it's time
-//			if( fabs( PhysiCell_globals.current_time - PhysiCell_globals.next_SVG_save_time  ) < 0.01 * diffusion_dt )
-//			{
-//				if( PhysiCell_settings.enable_SVG_saves == true )
-//				{
-//					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index );
-//					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
-//
-//					PhysiCell_globals.SVG_output_index++;
-//					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
-//				}
-//			}
+			if( fabs( PhysiCell_globals.current_time - PhysiCell_globals.next_SVG_save_time  ) < 0.01 * diffusion_dt )
+			{
+				if( PhysiCell_settings.enable_SVG_saves == true )
+				{
+					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index );
+					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+
+					PhysiCell_globals.SVG_output_index++;
+					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
+				}
+			}
 
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
